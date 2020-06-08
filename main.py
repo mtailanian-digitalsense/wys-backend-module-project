@@ -4,7 +4,7 @@ manage all logic for wys projects
 
 """
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, abort, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -45,7 +45,7 @@ class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
     user_id = db.Column(db.String(120))
-    m2_id = db.Column(db.Integer)
+    m2_gen_id = db.Column(db.Integer)
     location_id = db.Column(db.Integer)
     # TODO
     # location_id
@@ -60,7 +60,7 @@ class Project(db.Model):
         dict = {
             'id': self.id,
             'name': self.name,
-            'm2_id': self.m2_id,
+            'm2_gen_id': self.m2_gen_id,
             'user_id': self.user_id,
             'location_id': self.location_id
         }
@@ -73,7 +73,7 @@ class Project(db.Model):
         dict = {
             'id': self.id,
             'name': self.name,
-            'm2_id': self.m2_id,
+            'm2_gen_id': self.m2_gen_id,
             'user_id': self.user_id,
             'location_id': self.location_id
         }
@@ -100,6 +100,48 @@ app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 def spec():
     return jsonify(swagger(app))
 
+@app.route('/api/projects', methods=['POST'])
+def create_project():
+    """
+        Create a new project
+        ---
+        consumes:
+        - "application/json"
+        - "application/xml"
+        produces:
+        - "application/xml"
+        - "application/json"
+        parameters:
+        - in: "body"
+          name: "body"
+          description: "Project object that needs to be added to the store"
+          required: true
+        responses:
+          201:
+            description: Project Object
+          405:
+            description: "Invalid input"
+    """
+
+    try:
+        if not request.json or (not 'name' and not 'm2_gen_id' and not 'user_id' and not 'location_id') in request.json:
+            abort(400)
+
+        project = Project()
+        #project.id = request.json['id']
+        project.name = request.json['name']
+        project.m2_gen_id = request.json['m2_gen_id']
+        project.user_id = request.json['user_id']
+        project.location_id = request.json['location_id']
+
+        db.session.add(project)
+        db.session.commit()
+        
+        return project.serialize(), 201
+
+    except Exception as exp:
+        app.logger.error(f"Error in database: mesg ->{exp}")
+        return exp, 500
 
 @app.route('/api/projects/<project_id>')
 def get_project_by_id(project_id):
@@ -130,14 +172,14 @@ def get_project_by_id(project_id):
         return exp, 500
 
 
-@app.route("/api/projects/users/<project_user_id>")
-def get_projects_by_user(project_user_id):
+@app.route("/api/user/<user_id>/projects")
+def get_projects_by_user(user_id):
     """
-        Get Project By User ID
+        Get Projects By User ID
         ---
         parameters:
           - in: path
-            name: project_user_id
+            name: user_id
             type: integer
             description: User ID
         responses:
@@ -147,7 +189,7 @@ def get_projects_by_user(project_user_id):
             description: User not found
     """
     try:
-        projects = Project.query.filter_by(user_id=project_user_id)
+        projects = Project.query.filter_by(user_id=user_id)
 
         if(projects.count() > 0):
             dicts = [project.to_dict() for project in projects]
