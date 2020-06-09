@@ -20,6 +20,7 @@ DB_SCHEMA = os.getenv('DB_SCHEMA', 'wys')
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{DB_USER}:{DB_PASS}@{DB_IP}:{DB_PORT}/{DB_SCHEMA}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
@@ -128,7 +129,6 @@ def create_project():
             abort(400)
 
         project = Project()
-        #project.id = request.json['id']
         project.name = request.json['name']
         project.m2_gen_id = request.json['m2_gen_id']
         project.user_id = request.json['user_id']
@@ -143,7 +143,7 @@ def create_project():
         app.logger.error(f"Error in database: mesg ->{exp}")
         return exp, 500
 
-@app.route('/api/projects/<project_id>')
+@app.route('/api/projects/<project_id>', methods = ['GET', 'PUT', 'DELETE'])
 def get_project_by_id(project_id):
     """
         Get Project By ID
@@ -163,9 +163,27 @@ def get_project_by_id(project_id):
         project = Project.query.filter_by(id=project_id).first()
         app.logger.warning(project)
         if(project is not None):
-            return project.serialize()
+            if request.method == 'GET':
+                return project.serialize(), 200
+            if request.method == 'PUT':
+                project.name = request.json['name']
+                project.m2_gen_id = request.json['m2_gen_id']
+                project.user_id = request.json['user_id']
+                project.location_id = request.json['location_id']
 
-        return '{}', 404
+                db.session.commit()
+
+                project_updated = Project.query.filter_by(id=project_id).first()
+                
+                return project_updated.serialize(), 200
+                
+            if request.method == 'DELETE':
+                db.session.delete(project)
+                db.session.commit()
+
+                return jsonify({'result': 'Project deleted'}), 200
+
+        return '{}', 204
 
     except Exception as exp:
         app.logger.error(f"Error in database: mesg ->{exp}")
@@ -195,7 +213,7 @@ def get_projects_by_user(user_id):
             dicts = [project.to_dict() for project in projects]
             return jsonify(dicts)
 
-        return '{}', 404
+        return '{}', 204
 
     except Exception as exp:
         app.logger.error(f"Error in database: mesg ->{exp}")
