@@ -72,6 +72,14 @@ For a project with ID 123 in the local database where that project has saved a n
 
 **Content** : `{}`
 
+### Or
+
+**Condition** : If an error occurs with the database.
+
+**Code** : `500 Internal Server Error`
+
+**Content** : `{exception_message}`
+
 ## Create a new project
 
 **URL** : `/api/projects`
@@ -82,6 +90,19 @@ For a project with ID 123 in the local database where that project has saved a n
 
 **Permissions required** : -
 
+**Data constraints**
+
+Provide the name, owner user ID, M2 generated ID and location ID of Project to be created.
+
+```json
+{
+    "name": "[unicode 120 chars max]",
+    "user_id": "[integer]",
+    "m2_gen_id": "[integer]",
+    "location_id" : "[integer]"
+}
+```
+
 ### Success Response
 
 **Code** : `201 CREATED`
@@ -91,9 +112,9 @@ For a project with ID 123 in the local database where that project has saved a n
 ```json
 {
     "name": "Project",
-    "user_id": "1",
+    "user_id": 1,
     "m2_gen_id":1,
-    "location_id":1,
+    "location_id":1
 }
 ```
 
@@ -104,5 +125,114 @@ For a project with ID 123 in the local database where that project has saved a n
 **Code** : `303 SEE OTHER`
 
 **Headers** : `Location: /api/projects/{project_id}`
+
+**Content** : `{}`
+
+### Or
+
+**Condition** : If an error occurs with the database.
+
+**Code** : `500 Internal Server Error`
+
+**Content** : `{exception_message}`
+
+## Update an existing project
+
+Update the Account of the Authenticated User if and only if they are Owner.
+
+**URL** : `/api/projects/{project_id}`
+
+**URL Parameters** : `{id}=[integer]` where `{id}` is the ID of the Project on the server.
+
+**Method** : `PUT`
+
+**Auth required** : -
+
+**Permissions required** : -
+
+**Data constraints**
+
+The projects are not transferable, so the user id is not modifiable. Data example:
+
+```json
+{
+    "name": "[unicode 64 chars max]",
+    "m2_gen_id": "[integer]",
+    "location_id" : "[integer]"
+}
+```
+
+### Success Responses
+
+**Condition** : Update can be performed either fully or partially by the Owner
+of the Account.
+
+**Code** : `200 OK`
+
+**Content example** : For the example above, when the 'name' is updated and posted to `/api/projects/123/`...
+
+```json
+{
+    "id": 123,
+    "name": "New project name",
+    "user_id": 1,
+    "m2_gen_id":1,
+    "location_id":1
+}
+```
+
+### Error Response
+
+**Condition** : Account does not exist at URL
+
+**Code** : `200 OK`
+
+**Content** : `{}`
+
+### Or
+
+**Condition** : Authorized User is not owner of Project at URL.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** : `{}`
+
+## Delete an existing Project
+
+Delete the Project of the Authenticated User if they are Owner.
+
+**URL** : `/api/projects/{project_id}`
+
+**URL Parameters** : `{id}=[integer]` where `{id}` is the ID of the Project on the server.
+
+**Method** : `DELETE`
+
+**Auth required** : -
+
+**Permissions required** : -
+
+**Data** : `{}`
+
+### Success Response
+
+**Condition** : If the Project exists.
+
+**Code** : `200 OK`
+
+**Content** : `{"result": 'Project deleted'}`
+
+### Error Responses
+
+**Condition** : If there was no Project available to delete.
+
+**Code** : `404 NOT FOUND`
+
+**Content** : `{}`
+
+### Or
+
+**Condition** : Authorized User is not owner of Project at URL.
+
+**Code** : `403 FORBIDDEN`
 
 **Content** : `{}`
