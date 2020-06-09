@@ -169,7 +169,6 @@ def manage_project_by_id(project_id):
     """
     try:
         project = Project.query.filter_by(id=project_id).first()
-        app.logger.warning(project)
         if(project is not None):
             if request.method == 'GET':
                 return project.serialize(), 200
