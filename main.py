@@ -45,7 +45,7 @@ class Project(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120))
-    user_id = db.Column(db.String(120))
+    user_id = db.Column(db.Integer)
     m2_gen_id = db.Column(db.Integer)
     location_id = db.Column(db.Integer)
     # TODO
@@ -120,13 +120,19 @@ def create_project():
         responses:
           201:
             description: Project Object
-          405:
-            description: "Invalid input"
+          400:
+            description: "Empty field"
+          500:
+            description: "Database error"
     """
 
     try:
         if not request.json or (not 'name' and not 'm2_gen_id' and not 'user_id' and not 'location_id') in request.json:
             abort(400)
+        
+        projects = Project.query.filter_by(user_id = request.json['user_id'], name = request.json['name'])
+        if projects.count() > 0:
+            return "This Project already exists.", 303
 
         project = Project()
         project.name = request.json['name']
@@ -144,9 +150,9 @@ def create_project():
         return exp, 500
 
 @app.route('/api/projects/<project_id>', methods = ['GET', 'PUT', 'DELETE'])
-def get_project_by_id(project_id):
+def manage_project_by_id(project_id):
     """
-        Get Project By ID
+        Manage Project By ID (Show, update and delete)
         ---
         parameters:
           - in: path
@@ -155,9 +161,11 @@ def get_project_by_id(project_id):
             description: Project ID
         responses:
           200:
-            description: Project Object
+            description: Project Object or deleted message
           404:
-            description: Project Not Found 
+            description: Project Not Found
+          500:
+            description: "Database error"
     """
     try:
         project = Project.query.filter_by(id=project_id).first()
@@ -168,7 +176,6 @@ def get_project_by_id(project_id):
             if request.method == 'PUT':
                 project.name = request.json['name']
                 project.m2_gen_id = request.json['m2_gen_id']
-                project.user_id = request.json['user_id']
                 project.location_id = request.json['location_id']
 
                 db.session.commit()
@@ -176,14 +183,14 @@ def get_project_by_id(project_id):
                 project_updated = Project.query.filter_by(id=project_id).first()
                 
                 return project_updated.serialize(), 200
-                
+
             if request.method == 'DELETE':
                 db.session.delete(project)
                 db.session.commit()
 
                 return jsonify({'result': 'Project deleted'}), 200
 
-        return '{}', 204
+        return '{}', 404
 
     except Exception as exp:
         app.logger.error(f"Error in database: mesg ->{exp}")
@@ -205,6 +212,8 @@ def get_projects_by_user(user_id):
             description: Projects of the user
           404:
             description: User not found
+          500:
+            description: "Database error"
     """
     try:
         projects = Project.query.filter_by(user_id=user_id)
@@ -213,7 +222,7 @@ def get_projects_by_user(user_id):
             dicts = [project.to_dict() for project in projects]
             return jsonify(dicts)
 
-        return '{}', 204
+        return '{}', 404
 
     except Exception as exp:
         app.logger.error(f"Error in database: mesg ->{exp}")

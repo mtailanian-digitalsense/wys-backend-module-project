@@ -46,7 +46,7 @@ class ProjectTest(unittest.TestCase):
     def test_get_project_by_id(self):
         with app.test_client() as client:
             rv = client.get('/api/projects/1')
-            assert b'{"id":1,"location_id":1,"m2_gen_id":1,"name":"Project1","user_id":"1"}\n' in rv.data
+            assert b'{"id":1,"location_id":1,"m2_gen_id":1,"name":"Project1","user_id":1}\n' in rv.data
    
     def test_update_project(self):
         with app.test_client() as client:
