@@ -60,7 +60,22 @@ For a project with ID 123 in the local database where that project has saved a n
 
 ```json
 {
-
+    "data": 
+    [
+        {
+            "name": "Project1",
+            "user_id": 1,
+            "m2_gen_id":1,
+            "location_id":1
+        },
+        {
+            "name": "Project2",
+            "user_id": 1,
+            "m2_gen_id":2,
+            "location_id":2
+        },
+        ...
+    ]
 }
 ```
 
