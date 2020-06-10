@@ -48,8 +48,8 @@ class Project(db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120))
-    user_id = db.Column(db.Integer)
+    name = db.Column(db.String(120), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
     m2_gen_id = db.Column(db.Integer)
     location_id = db.Column(db.Integer)
     # TODO
@@ -150,7 +150,7 @@ def create_project():
     """
 
     try:
-        if not request.json or (not 'name' and not 'm2_gen_id' and not 'user_id' and not 'location_id') in request.json:
+        if not request.json or (not 'name' and not 'user_id') in request.json:
             abort(400)
         
         projects = Project.query.filter_by(user_id = request.json['user_id'], name = request.json['name'])
@@ -159,9 +159,9 @@ def create_project():
 
         project = Project()
         project.name = request.json['name']
-        project.m2_gen_id = request.json['m2_gen_id']
         project.user_id = request.json['user_id']
-        project.location_id = request.json['location_id']
+        project.m2_gen_id = request.json['m2_gen_id'] if 'm2_gen_id' in request.json else None
+        project.location_id = request.json['location_id'] if 'location_id' in request.json else None
 
         db.session.add(project)
         db.session.commit()
