@@ -10,9 +10,7 @@ Port: 8081
 
 **Method** : `GET`
 
-**Auth required** : -
-
-**Permissions required** : -
+**Auth required** : YES
 
 ### Success Response
 
@@ -48,9 +46,7 @@ For a project with ID 123 in the local database where that project has saved a n
 
 **Method** : `GET`
 
-**Auth required** : -
-
-**Permissions required** : -
+**Auth required** : YES
 
 ### Success Response
 
@@ -101,13 +97,11 @@ For a project with ID 123 in the local database where that project has saved a n
 
 **Method** : `POST`
 
-**Auth required** : -
-
-**Permissions required** : -
+**Auth required** : YES
 
 **Data constraints**
 
-Provide the name, owner user ID, M2 generated ID and location ID of Project to be created.
+Provide the `name` and owner user `ID of Project` to be created. The `location ID` and the `generated M2 ID` will be created when the User finishes the Project creation process, so they may not be in the request data.
 
 ```json
 {
@@ -161,9 +155,7 @@ Update the Account of the Authenticated User if and only if they are Owner.
 
 **Method** : `PUT`
 
-**Auth required** : -
-
-**Permissions required** : -
+**Auth required** : YES
 
 **Data constraints**
 
@@ -198,9 +190,9 @@ of the Account.
 
 ### Error Response
 
-**Condition** : Account does not exist at URL
+**Condition** : Project does not exist at URL
 
-**Code** : `200 OK`
+**Code** : `404 NOT FOUND`
 
 **Content** : `{}`
 
@@ -222,9 +214,7 @@ Delete the Project of the Authenticated User if they are Owner.
 
 **Method** : `DELETE`
 
-**Auth required** : -
-
-**Permissions required** : -
+**Auth required** : YES
 
 **Data** : `{}`
 
