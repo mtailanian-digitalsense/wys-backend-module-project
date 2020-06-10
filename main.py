@@ -4,12 +4,14 @@ manage all logic for wys projects
 
 """
 
+import jwt
+import os
+import logging
 from flask import Flask, jsonify, abort, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
-
-import os
+from functools import wraps
 
 # Loading Config Parameters
 DB_USER = os.getenv('DB_USER', 'wys')
@@ -21,6 +23,8 @@ DB_SCHEMA = os.getenv('DB_SCHEMA', 'wys')
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{DB_USER}:{DB_PASS}@{DB_IP}:{DB_PORT}/{DB_SCHEMA}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY']= 'Th1s1ss3cr3t'
+app.logger.setLevel(logging.DEBUG)
 db = SQLAlchemy(app)
 
 
@@ -97,11 +101,30 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 
+def token_required(f):  
+    @wraps(f)  
+    def decorator(*args, **kwargs):
+
+        token = request.headers.get('Authorization', None)
+        app.logger.debug(token)
+        if not token:
+            app.logger.debug("token_required")
+            return jsonify({'message': 'a valid token is missing'})
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+        except:  
+            return jsonify({'message': 'token is invalid'})  
+        
+        return f(*args,  **kwargs)
+    return decorator
+
 @app.route("/api/spec", methods=['GET'])
+@token_required
 def spec():
     return jsonify(swagger(app))
 
 @app.route('/api/projects', methods=['POST'])
+@token_required
 def create_project():
     """
         Create a new project
@@ -150,6 +173,7 @@ def create_project():
         return exp, 500
 
 @app.route('/api/projects/<project_id>', methods = ['GET', 'PUT', 'DELETE'])
+@token_required
 def manage_project_by_id(project_id):
     """
         Manage Project By ID (Show, update and delete)
@@ -195,8 +219,8 @@ def manage_project_by_id(project_id):
         app.logger.error(f"Error in database: mesg ->{exp}")
         return exp, 500
 
-
 @app.route("/api/user/<user_id>/projects")
+@token_required
 def get_projects_by_user(user_id):
     """
         Get Projects By User ID
