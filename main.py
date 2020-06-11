@@ -106,7 +106,7 @@ def token_required(f):
     def decorator(*args, **kwargs):
 
         token = request.headers.get('Authorization', None)
-        app.logger.debug(token)
+        app.logger.debug("Token:", token)
         if not token:
             app.logger.debug("token_required")
             return jsonify({'message': 'a valid token is missing'})

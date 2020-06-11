@@ -1,6 +1,7 @@
 import unittest
 import os
 import json
+import jwt
 from main import Project, app, db
 
 
@@ -11,6 +12,7 @@ class ProjectTest(unittest.TestCase):
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
         os.path.join('.', 'test.db')
         self.app = app.test_client()
+        
         db.create_all()
         db.session.add(
                 Project(id=1, 
@@ -38,6 +40,7 @@ class ProjectTest(unittest.TestCase):
 
     def test_create_project(self):
         with app.test_client() as client:
+            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode({'some': 'payload'}, app.config['SECRET_KEY'], algorithm='HS256')
             sent = {'name' : 'ProjectTest', 'm2_gen_id': 4, 'user_id': 2, 'location_id': 4}
             rv = client.post('/api/projects', data = json.dumps(sent), content_type='application/json')
 
@@ -45,11 +48,13 @@ class ProjectTest(unittest.TestCase):
 
     def test_get_project_by_id(self):
         with app.test_client() as client:
+            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode({'some': 'payload'}, app.config['SECRET_KEY'], algorithm='HS256')
             rv = client.get('/api/projects/1')
             assert b'{"id":1,"location_id":1,"m2_gen_id":1,"name":"Project1","user_id":1}\n' in rv.data
    
     def test_update_project(self):
         with app.test_client() as client:
+            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode({'some': 'payload'}, app.config['SECRET_KEY'], algorithm='HS256')
             rv = client.get('/api/projects/1')
             project = json.loads(rv.get_data(as_text=True))
             project['name'] = "UpdateName"
@@ -64,14 +69,16 @@ class ProjectTest(unittest.TestCase):
 
     def test_delete_project(self):
         with app.test_client() as client:
+            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode({'some': 'payload'}, app.config['SECRET_KEY'], algorithm='HS256')
             rv = client.delete('/api/projects/2')
             self.assertEqual(rv.status_code, 200)
     
     def test_get_projects_by_user(self):
         with app.test_client() as client:
+            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode({'some': 'payload'}, app.config['SECRET_KEY'], algorithm='HS256')
             rv = client.get('/api/user/1/projects')
             datas = json.loads(rv.data)
             assert len(datas) == 3
-
+    
 if __name__ == '__main__':
     unittest.main()
