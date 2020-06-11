@@ -110,7 +110,7 @@ def token_required(f):
             app.logger.debug("token_required")
             return jsonify({'message': 'a valid token is missing'})
         
-        app.logger.debug("Token:", token)
+        app.logger.debug("Token: " + token)
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
         except:  
