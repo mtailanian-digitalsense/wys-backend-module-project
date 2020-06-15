@@ -88,8 +88,8 @@ db.create_all()
 
 # Swagger Config
 
-SWAGGER_URL = '/api/docs/'
-API_URL = '/api/spec'
+SWAGGER_URL = '/api/projects/docs/'
+API_URL = '/api/projects/spec'
 swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
@@ -119,7 +119,7 @@ def token_required(f):
         return f(*args,  **kwargs)
     return decorator
 
-@app.route("/api/spec", methods=['GET'])
+@app.route("/api/projects/spec", methods=['GET'])
 @token_required
 def spec():
     return jsonify(swagger(app))
@@ -220,7 +220,7 @@ def manage_project_by_id(project_id):
         app.logger.error(f"Error in database: mesg ->{exp}")
         return exp, 500
 
-@app.route("/api/user/<user_id>/projects")
+@app.route("/api/projects/user/<user_id>/projects")
 @token_required
 def get_projects_by_user(user_id):
     """

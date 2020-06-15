@@ -40,7 +40,7 @@ For a project with ID 123 in the local database where that project has saved a n
 
 ## Show all projects by single user ID
 
-**URL** : `/api/user/{user_id}/projects`
+**URL** : `/api/projects/user/{user_id}/projects`
 
 **URL Parameters** : `{user_id}=[integer]` where `{user_id}` is the ID of the User on the server.
 
