@@ -101,12 +101,12 @@ For a project with ID 123 in the local database where that project has saved a n
 
 **Data constraints**
 
-Provide the `name` and owner user `ID of Project` to be created. The `location ID` and the `generated M2 ID` will be created when the User finishes the Project creation process, so they may not be in the request data.
+Provide the `name` and owner user `ID of Project` to be created. The `location ID` and the `generated M2 ID` will be 
+created when the User finishes the Project creation process, so they may not be in the request data.
 
 ```json
 {
     "name": "[unicode 120 chars max]",
-    "user_id": "[integer]",
     "m2_gen_id": "[integer]",
     "location_id" : "[integer]"
 }

@@ -143,6 +143,9 @@ cython_debug/
 # dbtest
 *.db
 
+# pycharm
+.idea/
+
 #venv
 Scripts/
 pyvenv.cfg
