@@ -41,8 +41,9 @@ class ProjectTest(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
-    def make_payload(self, user_id=1):
-        return {
+    @staticmethod
+    def build_token(key, user_id=1):
+        payload = {
             "aud": "1",
             "jti": "450ca670aff83b220d8fd58d9584365614fceaf210c8db2cf4754864318b5a398cf625071993680d",
             "iat": 1592309117,
@@ -53,11 +54,12 @@ class ProjectTest(unittest.TestCase):
             "scopes": [],
             "uid": 23
         }
+        return ('Bearer ' + jwt.encode(payload, key, algorithm='RS256').decode('utf-8')).encode('utf-8')
 
     def test_create_project(self):
         with app.test_client() as client:
 
-            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode(self.make_payload(), self.key, algorithm='RS256')
+            client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
             sent = {'name' : 'ProjectTest', 'm2_gen_id': 4, 'location_gen_id': 4}
             rv = client.post('/api/projects', data = json.dumps(sent), content_type='application/json')
 
@@ -65,13 +67,13 @@ class ProjectTest(unittest.TestCase):
 
     def test_get_project_by_id(self):
         with app.test_client() as client:
-            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode(self.make_payload(), self.key, algorithm='RS256')
+            client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
             rv = client.get('/api/projects/1')
             assert b'{"id":1,"location_gen_id":1,"m2_gen_id":1,"name":"Project1","user_id":1}\n' in rv.data
    
     def test_update_project(self):
         with app.test_client() as client:
-            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode(self.make_payload(), self.key, algorithm='RS256')
+            client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
             rv = client.get('/api/projects/1')
             project = json.loads(rv.get_data(as_text=True))
             project['name'] = "UpdateName"
@@ -86,15 +88,14 @@ class ProjectTest(unittest.TestCase):
 
     def test_delete_project(self):
         with app.test_client() as client:
-            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode(self.make_payload(), self.key, algorithm='RS256')
+            client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
             rv = client.delete('/api/projects/2')
             self.assertEqual(rv.status_code, 200)
     
     def test_get_projects_by_user(self):
         with app.test_client() as client:
             uid = 1
-            client.environ_base['HTTP_AUTHORIZATION'] = jwt.encode(self.make_payload(user_id=uid),
-                                                                   self.key, algorithm='RS256')
+            client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key, user_id=uid)
             rv = client.get('/api/projects')
             datas = json.loads(rv.data)
             assert len(datas) == 3
