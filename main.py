@@ -11,6 +11,7 @@ from flask import Flask, jsonify, abort, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_cors import CORS
 from functools import wraps
 
 # Loading Config Parameters
@@ -24,6 +25,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{DB_USER}:{DB_PASS}@{DB_IP}:{DB_PORT}/{DB_SCHEMA}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.logger.setLevel(logging.DEBUG)
+CORS(app)
 
 try:
     f = open('oauth-public.key', 'r')

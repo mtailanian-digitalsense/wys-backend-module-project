@@ -6,3 +6,4 @@ mysqlclient
 pyjwt
 gunicorn
 cryptography
+flask-cors
