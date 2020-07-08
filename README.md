@@ -131,9 +131,7 @@ created when the User finishes the Project creation process, so they may not be 
 
 **Condition** : If Project already exists for User.
 
-**Code** : `303 SEE OTHER`
-
-**Headers** : `Location: /api/projects/{project_id}`
+**Code** : `409 Conflict`
 
 **Content** : `{}`
 
@@ -188,19 +186,19 @@ of the Account.
 }
 ```
 
-### Error Response
+**Condition** : Authorized User is not owner of Project at URL.
 
-**Condition** : Project does not exist at URL
-
-**Code** : `404 NOT FOUND`
+**Code** : `403 FORBIDDEN`
 
 **Content** : `{}`
 
 ### Or
 
-**Condition** : Authorized User is not owner of Project at URL.
+### Error Response
 
-**Code** : `403 FORBIDDEN`
+**Condition** : Project does not exist at URL
+
+**Code** : `404 NOT FOUND`
 
 **Content** : `{}`
 
@@ -228,16 +226,17 @@ Delete the Project of the Authenticated User if they are Owner.
 
 ### Error Responses
 
-**Condition** : If there was no Project available to delete.
+**Condition** : Authorized User is not owner of Project at URL.
 
-**Code** : `404 NOT FOUND`
+**Code** : `403 FORBIDDEN`
 
 **Content** : `{}`
 
 ### Or
 
-**Condition** : Authorized User is not owner of Project at URL.
 
-**Code** : `403 FORBIDDEN`
+**Condition** : If there was no Project available to delete.
+
+**Code** : `404 NOT FOUND`
 
 **Content** : `{}`

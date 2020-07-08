@@ -186,12 +186,12 @@ def create_project():
     """
 
     try:
-        if not request.json or (not 'name' and not 'user_id') in request.json:
+        if not request.json or request.json.keys() != {'name','m2_gen_id','location_gen_id'}:
             abort(400)
         request.json['user_id'] = request.environ['user_id']
         projects = Project.query.filter_by(user_id=request.json['user_id'], name=request.json['name'])
         if projects.count() > 0:
-            return "This Project already exists.", 303
+            return "This Project already exists.", 409
 
         project = Project()
         project.name = request.json['name']
