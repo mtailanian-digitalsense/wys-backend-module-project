@@ -4,6 +4,7 @@ flask_swagger
 flask_swagger_ui
 mysqlclient
 pyjwt
+requests
 gunicorn
 cryptography
 flask-cors

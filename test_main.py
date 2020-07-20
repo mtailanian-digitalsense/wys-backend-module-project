@@ -22,19 +22,19 @@ class ProjectTest(unittest.TestCase):
                         name='Project1',
                         user_id=1,
                         m2_gen_id=1,
-                        location_gen_id=1))
+                        location_id=1))
         db.session.add(
                 Project(id=2, 
                         name='Project2', 
                         user_id=1,
                         m2_gen_id=2, 
-                        location_gen_id=2))
+                        location_id=2))
         db.session.add(
                 Project(id=3,
                         name='Project3',
                         user_id=1,
                         m2_gen_id=3,
-                        location_gen_id=3))
+                        location_id=3))
         db.session.commit()
 
     def tearDown(self):
@@ -60,7 +60,7 @@ class ProjectTest(unittest.TestCase):
         with app.test_client() as client:
 
             client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
-            sent = {'name' : 'ProjectTest', 'm2_gen_id': 4, 'location_gen_id': 4}
+            sent = {'name' : 'ProjectTest', 'm2_gen_id': 4, 'location_id': 4}
             rv = client.post('/api/projects', data = json.dumps(sent), content_type='application/json')
 
             self.assertEqual(rv.status_code, 201)
@@ -69,7 +69,7 @@ class ProjectTest(unittest.TestCase):
         with app.test_client() as client:
             client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
             rv = client.get('/api/projects/1')
-            assert b'{"id":1,"location_gen_id":1,"m2_gen_id":1,"name":"Project1","user_id":1}\n' in rv.data
+            assert b'{"id":1,"location_id":1,"m2_gen_id":1,"name":"Project1","user_id":1}\n' in rv.data
    
     def test_update_project(self):
         with app.test_client() as client:
@@ -99,7 +99,6 @@ class ProjectTest(unittest.TestCase):
             rv = client.get('/api/projects')
             datas = json.loads(rv.data)
             assert len(datas) == 3
-
 
 if __name__ == '__main__':
     unittest.main()
