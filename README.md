@@ -47,9 +47,9 @@ For a project with ID 123 in the local database where that project has saved a n
 
 ## Show all projects by single user ID
 
-**URL** : `/api/projects/user/{user_id}/projects`
+**URL** : `/api/projects`
 
-**URL Parameters** : `{user_id}=[integer]` where `{user_id}` is the ID of the User on the server.
+**Request environment parameters** : `{user_id}=[integer]` where `{user_id}` is the ID of the User on the server.
 
 **Method** : `GET`
 
@@ -258,3 +258,83 @@ Delete the Project of the Authenticated User if they are Owner.
 **Code** : `404 NOT FOUND`
 
 **Content** : `{}`
+
+
+## Get project location by project ID
+
+**URL** : `/api/projects/{project_id}/location`
+
+**URL Parameters** : `{project_id}=[integer]` where `{project_id}` is the ID of the Project on the server.
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content example**
+
+```json
+{
+  "building_id": 2,
+  "floor_id": 4,
+  "id": 4,
+  "selected_building": {
+    "active": true,
+    "address_number": "498-472",
+    "building_images": [
+      {
+        "link": "http://wysapi.ac3eplatforms.com/api/filestorage/c2VlZF9iMi5wbmcxNTk1MDI1NzU0LjI2ODM5Mg==.png"
+      }
+    ],
+    "building_year": 2006,
+    "category": "Clase A",
+    "gps_location": "-33.443926, -70.625672",
+    "id": 2,
+    "infrastructure_lvl": 8,
+    "name": "Edificio Inglés",
+    "parking_lvl": 9,
+    "parking_number": 200,
+    "public_transport_lvl": 7,
+    "security_lvl": 6,
+    "selected_floor": {
+      "active": true,
+      "building_id": 2,
+      "elevators_number": 3,
+      "id": 4,
+      "image_link": "http://wysapi.ac3eplatforms.com/api/filestorage/Zmxvb3IucG5nMTU5NTAyNTgzNy43Njg0NDU=.png",
+      "m2": 540.3,
+      "rent_value": 15400
+    },
+    "services_lvl": 8,
+    "street": "Marín",
+    "sustainability_lvl": 7,
+    "total_floors": 11,
+    "view_lvl": 8,
+    "zone_id": 2
+  }
+}
+```
+
+Where `selected_building` and `selected_floor` are the selected location elements by the user for the current project.
+
+### Error Responses
+
+**Conditions** : 
+* If the project with the provided ID was not found.
+* If the project does not have a location associated.
+* If the location associated with this project was not found.
+
+**Code** : `404 NOT FOUND`
+
+**Content** : `{}`
+
+### Or
+
+**Condition** : If an error occurs with the database or the server.
+
+**Code** : `500 Internal Server Error`
+
+**Content** : `{exception_message}`
