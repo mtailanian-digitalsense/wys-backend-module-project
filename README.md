@@ -24,7 +24,6 @@ For a project with ID 123 in the local database where that project has saved a n
 {
     "id": 123,
     "name": "Project name",
-    "m2_gen_id": 1234,
     "user_id": 321,
     "location_id": 12345
 }
@@ -32,11 +31,19 @@ For a project with ID 123 in the local database where that project has saved a n
 
 ### Error Responses
 
-**Condition** :  If Account does not exist with `id` of provided parameter.
+**Condition** :  If the project with the provided ID was not found.
 
 **Code** : `404 NOT FOUND`
 
 **Content** : `{}`
+
+### Or
+
+**Condition** : If an error occurs with the database.
+
+**Code** : `500 Internal Server Error`
+
+**Content** : `{exception_message}`
 
 ## Show all projects by single user ID
 
@@ -55,29 +62,26 @@ For a project with ID 123 in the local database where that project has saved a n
 **Content example**
 
 ```json
-{
-    "data": 
-    [
-        {
-            "name": "Project1",
-            "user_id": 1,
-            "m2_gen_id":1,
-            "location_id":1
-        },
-        {
-            "name": "Project2",
-            "user_id": 1,
-            "m2_gen_id":2,
-            "location_id":2
-        },
-        ...
-    ]
-}
+[
+    {
+        "name": "Project1",
+        "user_id": 1,
+        "location_id":1
+    },
+    {
+        "name": "Project2",
+        "user_id": 1,
+        "location_id":2
+    },
+    ...
+]
 ```
+
+**NOTE: If the user with user_id provided does not have projects, then an empty list code `200 OK` will be returned.**
 
 ### Error Responses
 
-**Condition** :  If User does not exist with `id` of provided parameter.
+**Condition** :  If the project with the provided ID was not found.
 
 **Code** : `404 NOT FOUND`
 
@@ -101,14 +105,12 @@ For a project with ID 123 in the local database where that project has saved a n
 
 **Data constraints**
 
-Provide the `name` and owner user `ID of Project` to be created. The `location ID` and the `generated M2 ID` will be 
+Provide the `name` and **owner `user_id` of the Project** to be created. The `location ID` will be 
 created when the User finishes the Project creation process, so they may not be in the request data.
 
 ```json
 {
-    "name": "[unicode 120 chars max]",
-    "m2_gen_id": "[integer]",
-    "location_id" : "[integer]"
+    "name": "[unicode 120 chars max]"
 }
 ```
 
@@ -122,14 +124,21 @@ created when the User finishes the Project creation process, so they may not be 
 {
     "name": "Project",
     "user_id": 1,
-    "m2_gen_id":1,
-    "location_id":1
+    "location_id": null
 }
 ```
 
 ### Error Responses
 
-**Condition** : If Project already exists for User.
+**Condition** : If missing required field or the body isn't application/json
+
+**Code** : `400 Bad Request`
+
+**Content** : `{error_message}`
+
+### Or
+
+**Condition** : If Project with te provided name already exists for the User ID.
 
 **Code** : `409 Conflict`
 
@@ -157,12 +166,15 @@ Update the Account of the Authenticated User if and only if they are Owner.
 
 **Data constraints**
 
-The projects are not transferable, so the user id is not modifiable. Data example:
+* The projects are not transferable, so the user id is not modifiable.
+
+* At least one of the following attributes must be included in the body (as well as all).
+
+Data example:
 
 ```json
 {
     "name": "[unicode 64 chars max]",
-    "m2_gen_id": "[integer]",
     "location_id" : "[integer]"
 }
 ```
@@ -181,10 +193,17 @@ of the Account.
     "id": 123,
     "name": "New project name",
     "user_id": 1,
-    "m2_gen_id":1,
     "location_id":1
 }
 ```
+
+**Condition** : If the body isn't application/json
+
+**Code** : `400 Bad Request`
+
+**Content** : `{error_message}`
+
+### Or
 
 **Condition** : Authorized User is not owner of Project at URL.
 
@@ -196,7 +215,7 @@ of the Account.
 
 ### Error Response
 
-**Condition** : Project does not exist at URL
+**Condition** : If the project with the provided ID was not found.
 
 **Code** : `404 NOT FOUND`
 
@@ -234,8 +253,7 @@ Delete the Project of the Authenticated User if they are Owner.
 
 ### Or
 
-
-**Condition** : If there was no Project available to delete.
+**Condition** : If the project with the provided ID was not found.
 
 **Code** : `404 NOT FOUND`
 
