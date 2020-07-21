@@ -20,21 +20,15 @@ class ProjectTest(unittest.TestCase):
         db.session.add(
                 Project(id=1,
                         name='Project1',
-                        user_id=1,
-                        m2_gen_id=1,
-                        location_id=1))
+                        user_id=1))
         db.session.add(
                 Project(id=2, 
                         name='Project2', 
-                        user_id=1,
-                        m2_gen_id=2, 
-                        location_id=2))
+                        user_id=1))
         db.session.add(
                 Project(id=3,
                         name='Project3',
-                        user_id=1,
-                        m2_gen_id=3,
-                        location_id=3))
+                        user_id=1))
         db.session.commit()
 
     def tearDown(self):
@@ -60,7 +54,7 @@ class ProjectTest(unittest.TestCase):
         with app.test_client() as client:
 
             client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
-            sent = {'name' : 'ProjectTest', 'm2_gen_id': 4, 'location_id': 4}
+            sent = {'name' : 'ProjectTest'}
             rv = client.post('/api/projects', data = json.dumps(sent), content_type='application/json')
 
             self.assertEqual(rv.status_code, 201)
@@ -69,22 +63,22 @@ class ProjectTest(unittest.TestCase):
         with app.test_client() as client:
             client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
             rv = client.get('/api/projects/1')
-            assert b'{"id":1,"location_id":1,"m2_gen_id":1,"name":"Project1","user_id":1}\n' in rv.data
+            project = json.loads(rv.get_data(as_text=True))
+            self.assertEqual(rv.status_code, 200)
+            self.assertEqual("Project1", project['name'])
    
     def test_update_project(self):
         with app.test_client() as client:
             client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
-            rv = client.get('/api/projects/1')
+            rv = client.get('/api/projects/3')
             project = json.loads(rv.get_data(as_text=True))
             project['name'] = "UpdateName"
 
-            rvu = client.put('/api/projects/1', data = json.dumps(project), content_type='application/json')
+            rvu = client.put('/api/projects/3', data = json.dumps(project), content_type='application/json')
 
             updated_project = json.loads(rvu.get_data(as_text=True))
-            if rvu.status_code == 200:
-                self.assertEqual("UpdateName", updated_project['name'])
-            
             self.assertEqual(rvu.status_code, 200)
+            self.assertEqual("UpdateName", updated_project['name'])
 
     def test_delete_project(self):
         with app.test_client() as client:
@@ -98,7 +92,12 @@ class ProjectTest(unittest.TestCase):
             client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key, user_id=uid)
             rv = client.get('/api/projects')
             datas = json.loads(rv.data)
-            assert len(datas) == 3
+            self.assertEqual(len(datas), 3)
+            uid = 2
+            client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key, user_id=uid)
+            rv = client.get('/api/projects')
+            datas = json.loads(rv.data)
+            self.assertEqual(len(datas), 0)
 
 if __name__ == '__main__':
     unittest.main()
