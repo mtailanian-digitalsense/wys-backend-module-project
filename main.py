@@ -328,7 +328,7 @@ def update_project_by_id(project_id):
         project.m2_gen_id = request.json['m2_gen_id'] if 'm2_gen_id' in request.json else project.m2_gen_id
         project.location_gen_id = request.json['location_gen_id'] if 'location_gen_id' in request.json else project.location_gen_id
         project.layout_gen_id = request.json['layout_gen_id'] if 'layout_gen_id' in request.json else project.layout_gen_id
-        project.time_gen_id = request.json['time_gen_id'] if 'time_gen_id' in request.json else None
+        project.time_gen_id = request.json['time_gen_id'] if 'time_gen_id' in request.json else project.time_gen_id
 
         db.session.commit()
 
