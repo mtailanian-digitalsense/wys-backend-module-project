@@ -72,7 +72,7 @@ class ProjectTest(unittest.TestCase):
         with app.test_client() as client:
             client.environ_base['HTTP_AUTHORIZATION'] = self.build_token(self.key)
             rv = client.get('/api/projects/1')
-            assert b'{"id":1,"layout_gen_id":1,"location_gen_id":1,"m2_gen_id":1,"name":"Project1","user_id":1}\n' in rv.data
+            assert b'{"id":1,"layout_gen_id":1,"location_gen_id":1,"m2_gen_id":1,"name":"Project1","time_gen_id":null,"user_id":1}\n' in rv.data
    
     def test_update_project(self):
         with app.test_client() as client:
