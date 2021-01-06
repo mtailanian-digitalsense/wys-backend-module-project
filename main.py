@@ -226,8 +226,10 @@ def create_project():
     """
 
     try:
-        if not request.json or request.json.keys() != {'name','m2_gen_id','location_gen_id', 'layout_gen_id','time_gen_id','price_gen_id'}:
+      #if not request.json or request.json.keys() != {'name','m2_gen_id','location_gen_id', 'layout_gen_id','time_gen_id','price_gen_id'}:
+        if 'name' not in request.json:
             abort(400)
+
         request.json['user_id'] = request.environ['user_id']
         projects = Project.query.filter_by(user_id=request.json['user_id'], name=request.json['name'])
         if projects.count() > 0:
@@ -240,7 +242,6 @@ def create_project():
         project.location_gen_id = request.json['location_gen_id'] if 'location_gen_id' in request.json else None
         project.layout_gen_id = request.json['layout_gen_id'] if 'layout_gen_id' in request.json else None
         project.time_gen_id = request.json['time_gen_id'] if 'time_gen_id' in request.json else None
-        project.price_gen_id = request.json['price_gen_id'] if 'price_gen_id' in request.json else None
 
         db.session.add(project)
         db.session.commit()
