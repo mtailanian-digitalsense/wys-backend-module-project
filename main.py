@@ -23,10 +23,28 @@ DB_PASS = os.getenv('DB_PASSWORD', 'rac3e/07')
 DB_IP = os.getenv('DB_IP_ADDRESS', '10.2.19.195')
 DB_PORT = os.getenv('DB_PORT', '3307')
 DB_SCHEMA = os.getenv('DB_SCHEMA', 'wys')
+
 BUILDINGS_MODULE_HOST = os.getenv('BUILDINGS_MODULE_HOST', '127.0.0.1')
 BUILDINGS_MODULE_PORT = os.getenv('BUILDINGS_MODULE_PORT', 5004)
+BUILDINGS_MODULE_API = os.getenv('BUILDINGS_MODULE_API', '/api/buildings/')
 BUILDINGS_MODULE_API_LOCS_GET = os.getenv('BUILDINGS_MODULE_API_LOCS_GET', '/api/buildings/locations/')
 BUILDINGS_URL = f"http://{BUILDINGS_MODULE_HOST}:{BUILDINGS_MODULE_PORT}"
+
+M2_MODULE_HOST = os.getenv('M2_MODULE_HOST', '127.0.0.1')
+M2_MODULE_PORT = os.getenv('M2_MODULE_PORT', 5001)
+M2_MODULE_API = os.getenv('M2_MODULE_API', '/api/m2/')
+
+PRICES_MODULE_HOST = os.getenv('PRICES_MODULE_HOST', '127.0.0.1')
+PRICES_MODULE_PORT = os.getenv('PRICES_MODULE_PORT', 5008)
+PRICES_MODULE_API = os.getenv('PRICES_MODULE_API', '/api/prices/')
+
+TIMES_MODULE_HOST = os.getenv('TIMES_MODULE_HOST', '127.0.0.1')
+TIMES_MODULE_PORT = os.getenv('TIMES_MODULE_PORT', 5007)
+TIMES_MODULE_API = os.getenv('TIMES_MODULE_API', '/api/times/')
+
+LAYOUT_MODULE_HOST = os.getenv('LAYOUT_MODULE_HOST', '127.0.0.1')
+LAYOUT_MODULE_PORT = os.getenv('LAYOUT_MODULE_PORT', 5006)
+LAYOUT_MODULE_API = os.getenv('LAYOUT_MODULE_API', '/api/layouts/')
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{DB_USER}:{DB_PASS}@{DB_IP}:{DB_PORT}/{DB_SCHEMA}"
@@ -396,6 +414,139 @@ def delete_project_by_id(project_id):
     except Exception as excp:
         app.logger.error(f"Error in database: mesg ->{excp}")
         return excp, 500
+
+def get_m2(m2_gen_id, token):
+    headers = {'Authorization': token}
+    api_url = f"http://{M2_MODULE_HOST}:{M2_MODULE_PORT}" + M2_MODULE_API + 'data/' + str(m2_gen_id)
+    rv = requests.get(api_url, headers=headers)
+    if rv.status_code == 200:
+        return json.loads(rv.text)
+    elif rv.status_code == 500:
+      raise Exception("Cannot connect to the prices module")
+    return None
+
+def get_price(price_gen_id, token):
+    headers = {'Authorization': token}
+    api_url = f"http://{PRICES_MODULE_HOST}:{PRICES_MODULE_PORT}" + PRICES_MODULE_API + 'data/' + str(price_gen_id)
+    rv = requests.get(api_url, headers=headers)
+    if rv.status_code == 200:
+        return json.loads(rv.text)
+    elif rv.status_code == 500:
+      raise Exception("Cannot connect to the prices module")
+    return None
+
+def get_location(location_gen_id, token):
+    headers = {'Authorization': token}
+    api_url = f"http://{BUILDINGS_MODULE_HOST}:{BUILDINGS_MODULE_PORT}" + BUILDINGS_MODULE_API + 'data/' + str(location_gen_id)
+    rv = requests.get(api_url, headers=headers)
+    if rv.status_code == 200:
+        return json.loads(rv.text)
+    elif rv.status_code == 500:
+      raise Exception("Cannot connect to the buildings module")
+    return None
+
+def get_time(time_gen_id, token):
+    headers = {'Authorization': token}
+    api_url = f"http://{TIMES_MODULE_HOST}:{TIMES_MODULE_PORT}" + TIMES_MODULE_API + 'data/' + str(time_gen_id)
+    rv = requests.get(api_url, headers=headers)
+    if rv.status_code == 200:
+        return json.loads(rv.text)
+    elif rv.status_code == 500:
+      raise Exception("Cannot connect to the times module")
+    return None
+
+def get_layout(layout_gen_id, token):
+    headers = {'Authorization': token}
+    api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'data/' + str(layout_gen_id)
+    rv = requests.get(api_url, headers=headers)
+    if rv.status_code == 200:
+        return json.loads(rv.text)
+    elif rv.status_code == 500:
+      raise Exception("Cannot connect to the layout module")
+    return None
+
+@app.route("/api/projects/details/<project_id>", methods=['GET'])
+@token_required
+def get_projects_details_by_user(project_id):
+    """
+        Get Projects Details By User ID
+        ---
+        tags:
+            - "projects"
+        parameters:
+            - in: path
+              name: project_id
+              type: integer
+              required: false
+              default: null
+              description: Saved project ID
+        responses:
+          200:
+            description: Projects of the user indicated in jwt token
+          404:
+            description: User not found
+          500:
+            description: "Database error"
+    """
+    try:
+      token = request.headers.get('Authorization', None)
+      user_id: int = 23 #request.environ['user_id']
+      if project_id.isdigit():
+        project = Project.query.filter(
+                    Project.id == project_id) .filter(
+                    Project.user_id == user_id) .first()
+        if project is not None:
+          p={'id': project.id,'name':project.name,'m2':'','location':'','layout':'','time':'','price':''}
+          if project.m2_gen_id is not None:
+            data = get_m2(project.m2_gen_id,token)
+            p['m2'] = data['m2']
+          if project.price_gen_id is not None:
+            data = get_price(project.price_gen_id,token)
+            p['price'] = data['price']
+          if project.location_gen_id is not None:
+            data = get_location(project.location_gen_id,token)
+            p['location'] = data['location']
+          if project.time_gen_id is not None:
+            data = get_time(project.time_gen_id,token)
+            p['time'] = data['time']
+          if project.layout_gen_id is not None:
+            data = get_layout(project.layout_gen_id,token)
+            p['layout'] = data['layout']
+          return jsonify(p),200
+      else:
+        projects = Project.query.filter_by(user_id=user_id)
+        projects_list = []
+        if projects.count() > 0:
+          dicts = [project.to_dict() for project in projects]
+          for d in dicts:
+            p={'id': d['id'],'name':d['name'],'m2':'','location':'','layout':'','time':'','price':''}
+            if d['m2_gen_id'] is not None:
+              data = get_m2(d['m2_gen_id'],token)
+              p['m2'] = data['m2']
+            if d['price_gen_id'] is not None:
+              data = get_price(d['price_gen_id'],token)
+              p['price'] = data['price']
+            if d['location_gen_id'] is not None:
+              data = get_location(d['location_gen_id'],token)
+              p['location'] = data['location']
+            if d['time_gen_id'] is not None:
+              data = get_time(d['time_gen_id'],token)
+              p['time'] = data['time']
+            if d['layout_gen_id'] is not None:
+              data = get_layout(d['layout_gen_id'],token)
+              p['layout'] = data['layout']
+            projects_list.append(p)
+          return jsonify(projects_list),200
+      
+      return jsonify({'status': "Project doesn't exists"}), 404
+
+    except KeyError as kerr:
+      app.logger.error(f"Can't find user_id in token {kerr}")
+      abort(jsonify({'message': kerr}), 500)
+
+    except Exception as exp:
+      app.logger.error(f"Error in database: mesg ->{exp}")
+      abort(jsonify({'message': exp}), 500)
 
 
 @app.route("/api/projects", methods=['GET'])
