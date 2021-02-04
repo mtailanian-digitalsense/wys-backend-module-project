@@ -469,16 +469,15 @@ def get_layout(layout_gen_id, token):
 @token_required
 def get_projects_details_by_user(project_id):
     """
-        Get Projects Details By User ID
+        Get Projects Details By User ID and a project id (or not)
         ---
         tags:
             - "projects"
         parameters:
             - in: path
               name: project_id
-              type: integer
-              required: false
-              default: null
+              required: true
+              default: all
               description: Saved project ID
         responses:
           200:
@@ -538,7 +537,7 @@ def get_projects_details_by_user(project_id):
             projects_list.append(p)
           return jsonify(projects_list),200
       
-      return jsonify({'status': "Project doesn't exists"}), 404
+      return jsonify({'status': "Project doesn't exists or doesn't belong to the user."}), 404
 
     except KeyError as kerr:
       app.logger.error(f"Can't find user_id in token {kerr}")
