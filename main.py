@@ -378,6 +378,35 @@ def update_project_by_id(project_id):
         app.logger.error(f"Error in database: mesg ->{exp}")
         return exp, 500
 
+@app.route('/api/projects/pais/<nombre_p>', methods=['GET'])
+@token_required
+def get_pais(nombre_p):
+    """
+        Get Project By ID
+        ---
+          consumes:
+            - "application/json"
+
+          tags:
+            - "projects"
+          parameters:
+            - in: path
+              name: nombre_p
+              type: string
+              description: Project ID
+          responses:
+            200:
+              description: Fue encontrado
+            404:
+              description: Pais no existe
+    """
+    if nombre_p == '':
+        return '{}', 404
+    else:
+        '''codigo para conectarse a otra api que devuelva el dinero'''
+        return nombre_p,200
+
+   
 
 @app.route('/api/projects/<project_id>', methods=['DELETE'])
 @token_required
@@ -541,7 +570,7 @@ def get_projects_details_by_user(project_id):
 
     except KeyError as kerr:
       app.logger.error(f"Can't find user_id in token {kerr}")
-      abort(jsonify({'message': kerr}), 500)
+      abort(jsonify({'message': kerr}), 403)
 
     except Exception as exp:
       app.logger.error(f"Error in database: mesg ->{exp}")
