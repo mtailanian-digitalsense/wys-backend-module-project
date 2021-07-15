@@ -154,7 +154,7 @@ def token_required(f):
         except Exception as ierr:
             app.logger.error(ierr)
             abort(jsonify({'message': 'a valid bearer token is missing'}), 500)
-
+        
         if not token:
             app.logger.debug("token_required")
             return jsonify({'message': 'a valid token is missing'})
@@ -269,6 +269,52 @@ def create_project():
     except Exception as exp:
         app.logger.error(f"Error in database: mesg ->{exp}")
         abort(jsonify({'message': exp}), 500)
+
+
+@app.route('/api/projects/all', methods=['GET'])
+@token_required
+def get_projects():
+    """
+        Get all projects
+        ---
+        consumes:
+        - "application/json"
+        tags:
+        - "projects"
+        produces:
+        - "application/xml"
+        - "application/json"
+       
+        responses:
+          200:
+            description: "Success"
+          400:
+            description: "User without id"
+          500:
+            description: "Database error"
+    """
+
+    try:
+      
+
+        user_id = request.environ['user_id']
+        if user_id is None:
+            abort(400)
+
+        projects = Project.query.all()
+        
+        if projects is not None:
+            if request.method == 'GET':
+                 return jsonify({
+                  'projects': [project.to_dict() for project in projects]
+                  }),200
+
+        return '{}', 404
+
+    except Exception as exp:
+        app.logger.error(f"Error in database: mesg ->{exp}")
+        return exp, 500
+
 
 
 @app.route('/api/projects/<project_id>', methods=['GET'])
