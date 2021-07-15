@@ -302,12 +302,13 @@ def get_projects():
             abort(400)
 
         projects = Project.query.all()
-        
+        p=[]
+        for project in projects:
+          p.append(project.to_dict())
+ 
         if projects is not None:
             if request.method == 'GET':
-                 return jsonify({
-                  'projects': [project.to_dict() for project in projects]
-                  }),200
+                 return jsonify(p),200
 
         return '{}', 404
 
