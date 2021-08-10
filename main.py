@@ -295,7 +295,7 @@ def get_projects():
     """
 
     try:
-      
+        token = request.headers.get('Authorization', None)
 
         user_id = request.environ['user_id']
         if user_id is None:
@@ -304,7 +304,14 @@ def get_projects():
         projects = Project.query.all()
         p=[]
         for project in projects:
-          p.append(project.to_dict())
+          proj_dict=project.to_dict()
+          if project.layout_gen_id is not None:
+            data = get_layout_gen(project.id,token)
+            proj_dict['floor_id']=None
+            if data is not None:
+              if 'floor_id' in data:
+                proj_dict['floor_id']=data['floor_id']
+            p.append(proj_dict)
  
         if projects is not None:
             if request.method == 'GET':
@@ -534,6 +541,16 @@ def get_time(time_gen_id, token):
 def get_layout(layout_gen_id, token):
     headers = {'Authorization': token}
     api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'data/' + str(layout_gen_id)
+    rv = requests.get(api_url, headers=headers)
+    if rv.status_code == 200:
+        return json.loads(rv.text)
+    elif rv.status_code == 500:
+      raise Exception("Cannot connect to the layout module")
+    return None
+
+def get_layout_gen(project_id, token):
+    headers = {'Authorization': token}
+    api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'inf/'+ str(project_id)
     rv = requests.get(api_url, headers=headers)
     if rv.status_code == 200:
         return json.loads(rv.text)
