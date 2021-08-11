@@ -300,10 +300,12 @@ def get_projects():
         user_id = request.environ['user_id']
         if user_id is None:
             abort(400)
-
+        print(user_id)
         projects = Project.query.all()
+        print(projects)
         p=[]
         for project in projects:
+          print('hello')
           proj_dict=project.to_dict()
           if project.layout_gen_id is not None:
             data = get_layout_gen(project.id,token)
