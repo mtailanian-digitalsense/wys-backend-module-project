@@ -551,6 +551,7 @@ def get_layout(layout_gen_id, token):
 def get_layout_gen(project_id, token):
     headers = {'Authorization': token}
     api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'inf/'+ str(project_id)
+    print('api-url: ',api_url)
     rv = requests.get(api_url, headers=headers)
     if rv.status_code == 200:
         return json.loads(rv.text)
