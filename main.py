@@ -600,7 +600,9 @@ def get_projects_details_by_user(project_id):
     try:
       token = request.headers.get('Authorization', None)
       user_id = 23#: int = request.environ['user_id']
+      print('holita')
       if project_id.isdigit():
+        print('soy digito')
         project = Project.query.filter(
                     Project.id == project_id) .filter(
                     Project.user_id == user_id) .first()
@@ -625,6 +627,7 @@ def get_projects_details_by_user(project_id):
             p['layout'] = data['layout']
           return jsonify(p),200
       else:
+        print('soy todo')
         projects = Project.query.filter_by(user_id=user_id)
         projects_list = []
         if projects.count() > 0:
@@ -644,6 +647,7 @@ def get_projects_details_by_user(project_id):
               data = get_time(d['time_gen_id'],token)
               p['time'] = data['time']
             if d['layout_gen_id'] is not None:
+              print('eoo2')
               data = get_layout(d['layout_gen_id'],token)
               p['layout'] = data['layout']
             projects_list.append(p)
