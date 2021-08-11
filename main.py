@@ -295,8 +295,9 @@ def get_projects():
     """
 
     try:
+        print(':C')
         token = request.headers.get('Authorization', None)
-
+        print(token)
         user_id = 23 #request.environ['user_id']
         if user_id is None:
             abort(400)
