@@ -307,13 +307,14 @@ def get_projects():
         print(projects)
         p=[]
         for project in projects:
+          print(project.id)
           print('hello')
           proj_dict=project.to_dict()
           if project.layout_gen_id is not None:
-            data = get_layout(project.layout_gen_id,token)
+            data = get_layout_gen(project.id,token)
             print(data)
             #data = get_layout_gen(project.id,token)
-            proj_dict['floor_id']=None
+            proj_dict['floor_id']=data['floor_id']
             #if data is not None:
             #  if 'floor_id' in data:
             #    proj_dict['floor_id']=data['floor_id']
@@ -556,25 +557,17 @@ def get_layout(layout_gen_id, token):
       raise Exception("Cannot connect to the layout module")
     return None
 
-def get_layout_gen(project_id, token):
+def get_layout_gen(layout_gen_id, token):
     headers = {'Authorization': token}
-    api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'inf/'+ str(project_id)
-    print('api-url: ',api_url)
-    print('headers',headers)
-    try:
-      rv = requests.get(api_url, headers=headers)
-      print('helllloooooowww')
-      print(rv)
-      print(rv.text)
-      print(rv.status_code)
-      if rv.status_code == 200:
-          return json.loads(rv.text)
-      elif rv.status_code == 500:
-        raise Exception("Cannot connect to the layout module")
-      return None
-
-    except Exception as e:
-      raise Exception(f"Exception: {e}")
+    api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'inf/' + str(layout_gen_id)
+    print(api_url)
+    rv = requests.get(api_url, headers=headers)
+    print('en layout',rv)
+    if rv.status_code == 200:
+        return json.loads(rv.text)
+    elif rv.status_code == 500:
+      raise Exception("Cannot connect to the layout module")
+    return None
     
     
 @app.route("/api/projects/details/<project_id>", methods=['GET'])
