@@ -270,6 +270,23 @@ def create_project():
         app.logger.error(f"Error in database: mesg ->{exp}")
         abort(jsonify({'message': exp}), 500)
 
+def get_layout_gen(project_id, token):
+    print('aqui')
+    headers = {'Authorization': token}
+    api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'inf/' + str(project_id)
+    print(api_url)
+    try:
+      rv = requests.get(api_url, headers=headers)
+      print('en layout',rv)
+      if rv.status_code == 200:
+        return json.loads(rv.text)
+      elif rv.status_code == 500:
+        raise Exception("Cannot connect to the layout module")
+      return None
+    except Exception as exp:
+        app.logger.error(f"Error in database: mesg ->{exp}")
+        return None
+
 
 @app.route('/api/projects/all', methods=['GET'])
 @token_required
@@ -315,9 +332,9 @@ def get_projects():
             print(data)
             #data = get_layout_gen(project.id,token)
             proj_dict['floor_id']=data['floor_id']
-            #if data is not None:
-            #  if 'floor_id' in data:
-            #    proj_dict['floor_id']=data['floor_id']
+            if data is not None:
+              if 'floor_id' in data:
+                proj_dict['floor_id']=data['floor_id']
             p.append(proj_dict)
  
         if projects is not None:
@@ -551,18 +568,6 @@ def get_layout(layout_gen_id, token):
     api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'data/' + str(layout_gen_id)
     rv = requests.get(api_url, headers=headers)
     print('en prices',rv)
-    if rv.status_code == 200:
-        return json.loads(rv.text)
-    elif rv.status_code == 500:
-      raise Exception("Cannot connect to the layout module")
-    return None
-
-def get_layout_gen(layout_gen_id, token):
-    headers = {'Authorization': token}
-    api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'inf/' + str(layout_gen_id)
-    print(api_url)
-    rv = requests.get(api_url, headers=headers)
-    print('en layout',rv)
     if rv.status_code == 200:
         return json.loads(rv.text)
     elif rv.status_code == 500:
