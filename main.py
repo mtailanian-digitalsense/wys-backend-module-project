@@ -297,7 +297,7 @@ def get_projects():
     try:
         token = request.headers.get('Authorization', None)
 
-        user_id = request.environ['user_id']
+        user_id = 23 #request.environ['user_id']
         if user_id is None:
             abort(400)
         print(f"http://{PRICES_MODULE_HOST}:{PRICES_MODULE_PORT}" + PRICES_MODULE_API + 'data/' + str(1))
