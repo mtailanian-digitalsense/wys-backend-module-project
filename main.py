@@ -599,7 +599,7 @@ def get_projects_details_by_user(project_id):
     """
     try:
       token = request.headers.get('Authorization', None)
-      user_id: int = request.environ['user_id']
+      user_id = 23#: int = request.environ['user_id']
       if project_id.isdigit():
         project = Project.query.filter(
                     Project.id == project_id) .filter(
