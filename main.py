@@ -597,7 +597,9 @@ def get_projects_details_by_user(project_id):
             data = get_m2(project.m2_gen_id,token)
             p['m2'] = data['m2']
           if project.price_gen_id is not None:
+            print('pricess')
             data = get_price(project.price_gen_id,token)
+            print(data)
             p['price'] = data['price']
           if project.location_gen_id is not None:
             data = get_location(project.location_gen_id,token)
