@@ -619,7 +619,9 @@ def get_projects_details_by_user(project_id):
             data = get_time(project.time_gen_id,token)
             p['time'] = data['time']
           if project.layout_gen_id is not None:
+            print('eooo')
             data = get_layout(project.layout_gen_id,token)
+            print(data)
             p['layout'] = data['layout']
           return jsonify(p),200
       else:
