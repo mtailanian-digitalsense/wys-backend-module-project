@@ -310,11 +310,13 @@ def get_projects():
           print('hello')
           proj_dict=project.to_dict()
           if project.layout_gen_id is not None:
-            data = get_layout_gen(project.id,token)
+            data = get_layout(project.layout_gen_id,token)
+            print(data)
+            #data = get_layout_gen(project.id,token)
             proj_dict['floor_id']=None
-            if data is not None:
-              if 'floor_id' in data:
-                proj_dict['floor_id']=data['floor_id']
+            #if data is not None:
+            #  if 'floor_id' in data:
+            #    proj_dict['floor_id']=data['floor_id']
             p.append(proj_dict)
  
         if projects is not None:
