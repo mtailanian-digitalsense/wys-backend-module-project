@@ -547,6 +547,7 @@ def get_layout(layout_gen_id, token):
     headers = {'Authorization': token}
     api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'data/' + str(layout_gen_id)
     rv = requests.get(api_url, headers=headers)
+    print('en prices',rv)
     if rv.status_code == 200:
         return json.loads(rv.text)
     elif rv.status_code == 500:
