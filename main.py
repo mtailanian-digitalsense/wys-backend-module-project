@@ -571,7 +571,7 @@ def get_layout_gen(project_id, token):
       return None
 
     except Exception as e:
-      raise Exception(f"Exception:{e}")
+      raise Exception(f"Exception: {e}")
     
     
 @app.route("/api/projects/details/<project_id>", methods=['GET'])
