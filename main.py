@@ -560,18 +560,20 @@ def get_layout_gen(project_id, token):
     print('headers')
     try:
       rv = requests.get(api_url, headers=headers)
+      print('helllloooooowww')
+      print(rv)
+      print(rv.text)
+      print(rv.status_code)
+      if rv.status_code == 200:
+          return json.loads(rv.text)
+      elif rv.status_code == 500:
+        raise Exception("Cannot connect to the layout module")
+      return None
+
     except Exception as e:
       print(e)
-    print('helllloooooowww')
-    print(rv)
-    print(rv.text)
-    print(rv.status_code)
-    if rv.status_code == 200:
-        return json.loads(rv.text)
-    elif rv.status_code == 500:
-      raise Exception("Cannot connect to the layout module")
-    return None
-
+    
+    
 @app.route("/api/projects/details/<project_id>", methods=['GET'])
 @token_required
 def get_projects_details_by_user(project_id):
