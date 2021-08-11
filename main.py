@@ -300,6 +300,7 @@ def get_projects():
         user_id = request.environ['user_id']
         if user_id is None:
             abort(400)
+        print(f"http://{PRICES_MODULE_HOST}:{PRICES_MODULE_PORT}" + PRICES_MODULE_API + 'data/' + str(1))
         print(user_id)
         projects = Project.query.all()
         print(projects)
@@ -586,7 +587,7 @@ def get_projects_details_by_user(project_id):
     """
     try:
       token = request.headers.get('Authorization', None)
-      user_id=23
+      user_id: int = request.environ['user_id']
       if project_id.isdigit():
         project = Project.query.filter(
                     Project.id == project_id) .filter(
@@ -597,9 +598,7 @@ def get_projects_details_by_user(project_id):
             data = get_m2(project.m2_gen_id,token)
             p['m2'] = data['m2']
           if project.price_gen_id is not None:
-            print('pricess')
             data = get_price(project.price_gen_id,token)
-            print(data)
             p['price'] = data['price']
           if project.location_gen_id is not None:
             data = get_location(project.location_gen_id,token)
