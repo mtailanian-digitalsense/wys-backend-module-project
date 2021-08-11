@@ -276,6 +276,7 @@ def get_layout_gen(project_id, token):
     api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'inf/' + str(project_id)
     print(api_url)
     try:
+      print('en try')
       rv = requests.get(api_url, headers=headers)
       print('en layout',rv)
       if rv.status_code == 200:
