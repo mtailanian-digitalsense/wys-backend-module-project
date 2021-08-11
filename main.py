@@ -331,7 +331,7 @@ def get_projects():
             data = get_layout_gen(project.id,token)
             print(data)
             #data = get_layout_gen(project.id,token)
-            proj_dict['floor_id']=data['floor_id']
+            proj_dict['floor_id']=None
             if data is not None:
               if 'floor_id' in data:
                 proj_dict['floor_id']=data['floor_id']
