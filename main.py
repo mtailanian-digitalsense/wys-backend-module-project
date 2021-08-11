@@ -557,7 +557,7 @@ def get_layout_gen(project_id, token):
     headers = {'Authorization': token}
     api_url = f"http://{LAYOUT_MODULE_HOST}:{LAYOUT_MODULE_PORT}" + LAYOUT_MODULE_API + 'inf/'+ str(project_id)
     print('api-url: ',api_url)
-    print('headers')
+    print('headers',headers)
     try:
       rv = requests.get(api_url, headers=headers)
       print('helllloooooowww')
