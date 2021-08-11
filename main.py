@@ -513,6 +513,7 @@ def get_m2(m2_gen_id, token):
 def get_price(price_gen_id, token):
     headers = {'Authorization': token}
     api_url = f"http://{PRICES_MODULE_HOST}:{PRICES_MODULE_PORT}" + PRICES_MODULE_API + 'data/' + str(price_gen_id)
+    print('api-url: ',api_url)
     rv = requests.get(api_url, headers=headers)
     if rv.status_code == 200:
         return json.loads(rv.text)
