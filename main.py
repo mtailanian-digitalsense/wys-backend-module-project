@@ -311,13 +311,13 @@ def get_projects():
           500:
             description: "Database error"
     """
-
+    
     try:
         
         token = request.headers.get('Authorization', None)
      
         user_id = request.environ['user_id']
-        print('user_id',user_id)
+        
         if user_id is None:
             abort(400)
         
@@ -328,7 +328,7 @@ def get_projects():
         for project in projects:
           
           proj_dict=project.to_dict()
-          print(proj_dict)
+          
           if project.layout_gen_id is not None:
             data = get_layout_gen(project.id,token)
             
@@ -658,10 +658,10 @@ def get_projects_details_by_user(project_id):
     """
     try:
       token = request.headers.get('Authorization', None)
-      user_id = 23#: int = request.environ['user_id']
-      print('holita')
+      user_id = request.environ['user_id']
+      
       if project_id.isdigit():
-        print('soy digito')
+        
         project = Project.query.filter(
                     Project.id == project_id) .filter(
                     Project.user_id == user_id) .first()
@@ -680,13 +680,13 @@ def get_projects_details_by_user(project_id):
             data = get_time(project.time_gen_id,token)
             p['time'] = data['time']
           if project.layout_gen_id is not None:
-            print('eooo')
+            
             data = get_layout(project.layout_gen_id,token)
-            print(data)
+            
             p['layout'] = data['layout']
           return jsonify(p),200
       else:
-        print('soy todo')
+        
         projects = Project.query.filter_by(user_id=user_id)
         projects_list = []
         if projects.count() > 0:
@@ -706,11 +706,11 @@ def get_projects_details_by_user(project_id):
               data = get_time(d['time_gen_id'],token)
               p['time'] = data['time']
             if d['layout_gen_id'] is not None:
-              print('eoo2')
+              
               data = get_layout(d['layout_gen_id'],token)
               p['layout'] = data['layout']
             projects_list.append(p)
-          return jsonify(projects_list),200
+        return jsonify(projects_list),200
       
       return jsonify({'status': "Project doesn't exists or doesn't belong to the user."}), 404
 
