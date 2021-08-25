@@ -313,24 +313,23 @@ def get_projects():
     """
 
     try:
-        print(':C')
+        
         token = request.headers.get('Authorization', None)
-        print(token)
+     
         user_id = request.environ['user_id']
         if user_id is None:
             abort(400)
-        print(f"http://{PRICES_MODULE_HOST}:{PRICES_MODULE_PORT}" + PRICES_MODULE_API + 'data/' + str(1))
-        print(user_id)
+        
+        
         projects = Project.query.all()
-        print(projects)
+        
         p=[]
         for project in projects:
-          print(project.id)
-          print('hello')
+          
           proj_dict=project.to_dict()
           if project.layout_gen_id is not None:
             data = get_layout_gen(project.id,token)
-            print(data)
+            
             #data = get_layout_gen(project.id,token)
             proj_dict['floor_id']=None
             if data is not None:
@@ -348,6 +347,63 @@ def get_projects():
         app.logger.error(f"Error in database: mesg ->{exp}")
         return exp, 500
 
+@app.route('/api/projects/allusers', methods=['GET'])
+@token_required
+def get_projects_all_users():
+    """
+        Get all projects
+        ---
+        consumes:
+        - "application/json"
+        tags:
+        - "projects"
+        produces:
+        - "application/xml"
+        - "application/json"
+       
+        responses:
+          200:
+            description: "Success"
+          400:
+            description: "User without id"
+          500:
+            description: "Database error"
+    """
+
+    try:
+        
+        token = request.headers.get('Authorization', None)
+      
+        user_id = request.environ['user_id']
+        if user_id is None:
+            abort(400)
+        
+        
+        projects = Project.query.all()
+        
+        p=[]
+        for project in projects:
+          
+          proj_dict=project.to_dict()
+          if project.layout_gen_id is not None:
+            data = get_layout_gen(project.id,token)
+            
+            #data = get_layout_gen(project.id,token)
+            proj_dict['floor_id']=None
+            if data is not None:
+              if 'floor_id' in data:
+                proj_dict['floor_id']=data['floor_id']
+            p.append(proj_dict)
+ 
+        if projects is not None:
+            if request.method == 'GET':
+                 return jsonify(p),200
+
+        return '{}', 404
+
+    except Exception as exp:
+        app.logger.error(f"Error in database: mesg ->{exp}")
+        return exp, 500
 
 
 @app.route('/api/projects/<project_id>', methods=['GET'])
