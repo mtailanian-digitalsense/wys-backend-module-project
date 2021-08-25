@@ -321,7 +321,7 @@ def get_projects():
             abort(400)
         
         
-        projects = Project.query.all()
+        projects = Project.query.filter_by(user_id=user_id)
         
         p=[]
         for project in projects:
