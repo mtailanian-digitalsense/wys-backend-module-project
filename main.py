@@ -317,6 +317,7 @@ def get_projects():
         token = request.headers.get('Authorization', None)
      
         user_id = request.environ['user_id']
+        print('user_id',user_id)
         if user_id is None:
             abort(400)
         
@@ -327,6 +328,7 @@ def get_projects():
         for project in projects:
           
           proj_dict=project.to_dict()
+          print(proj_dict)
           if project.layout_gen_id is not None:
             data = get_layout_gen(project.id,token)
             
