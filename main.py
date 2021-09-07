@@ -590,9 +590,9 @@ def get_m2(m2_gen_id, token):
       raise Exception("Cannot connect to the prices module")
     return None
 
-def get_price(pid, token):
+def get_price(pgid, token):
     headers = {'Authorization': token}
-    api_url = f"http://{PRICES_MODULE_HOST}:{PRICES_MODULE_PORT}" + PRICES_MODULE_API + 'load/' + str(pid)
+    api_url = f"http://{PRICES_MODULE_HOST}:{PRICES_MODULE_PORT}" + PRICES_MODULE_API + 'data/' + str(pgid)
     print('api-url: ',api_url)
     print('hola prices')
     try:
