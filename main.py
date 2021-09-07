@@ -20,7 +20,7 @@ from functools import wraps
 # Loading Config Parameters
 DB_USER = os.getenv('DB_USER', 'wys')
 DB_PASS = os.getenv('DB_PASSWORD', 'rac3e/07')
-DB_IP = os.getenv('DB_IP_ADDRESS', '10.2.19.195')
+DB_IP = os.getenv('DB_IP_ADDRESS', '10.2.14.195')
 DB_PORT = os.getenv('DB_PORT', '3307')
 DB_SCHEMA = os.getenv('DB_SCHEMA', 'wys')
 
@@ -316,17 +316,16 @@ def get_projects():
         
         token = request.headers.get('Authorization', None)
      
-        user_id = request.environ['user_id']
+        uid = request.environ['user_id']
         
-        if user_id is None:
+        if uid is None:
             abort(400)
         
-        
-        projects = Project.query.filter_by(user_id=user_id)
+        print('uid',uid)
+        projects = Project.query.filter_by(user_id=uid)
         
         p=[]
         for project in projects:
-          
           proj_dict=project.to_dict()
           
           if project.layout_gen_id is not None:
@@ -591,20 +590,25 @@ def get_m2(m2_gen_id, token):
       raise Exception("Cannot connect to the prices module")
     return None
 
-def get_price(price_gen_id, token):
+def get_price(pid, token):
     headers = {'Authorization': token}
-    api_url = f"http://{PRICES_MODULE_HOST}:{PRICES_MODULE_PORT}" + PRICES_MODULE_API + 'data/' + str(price_gen_id)
+    api_url = f"http://{PRICES_MODULE_HOST}:{PRICES_MODULE_PORT}" + PRICES_MODULE_API + 'load/' + str(pid)
     print('api-url: ',api_url)
-    rv = requests.get(api_url, headers=headers)
-    if rv.status_code == 200:
-        return json.loads(rv.text)
-    elif rv.status_code == 500:
-      raise Exception("Cannot connect to the prices module")
+    print('hola prices')
+    try:
+      rv = requests.get(api_url, headers=headers)
+      if rv.status_code == 200:
+          return json.loads(rv.text)
+      elif rv.status_code == 500:
+        raise Exception("Cannot connect to the prices module")
+    except Exception as exp:
+      app.logger.error(f"Error: mesg ->{exp}")
     return None
 
 def get_location(location_gen_id, token):
     headers = {'Authorization': token}
     api_url = f"http://{BUILDINGS_MODULE_HOST}:{BUILDINGS_MODULE_PORT}" + BUILDINGS_MODULE_API + 'data/' + str(location_gen_id)
+    print(api_url)
     rv = requests.get(api_url, headers=headers)
     if rv.status_code == 200:
         return json.loads(rv.text)
@@ -658,8 +662,11 @@ def get_projects_details_by_user(project_id):
     """
     try:
       token = request.headers.get('Authorization', None)
-      user_id = request.environ['user_id']
+      user_id = 23 #request.environ['user_id']
+      if user_id is None:
+            abort(400)
       
+      print('user_id',user_id)
       if project_id.isdigit():
         
         project = Project.query.filter(
@@ -669,21 +676,43 @@ def get_projects_details_by_user(project_id):
           p={'id': project.id,'name':project.name,'m2':'','location':'','layout':'','time':'','price':''}
           if project.m2_gen_id is not None:
             data = get_m2(project.m2_gen_id,token)
-            p['m2'] = data['m2']
+            if data is not None:
+              p['m2'] = data['m2']  
+            else: 
+              p['m2'] = None
           if project.price_gen_id is not None:
             data = get_price(project.price_gen_id,token)
-            p['price'] = data['price']
+            if data is not None:
+              print(data)
+              p['price'] = data['price']  
+            else: 
+              p['price'] = None
+            
           if project.location_gen_id is not None:
             data = get_location(project.location_gen_id,token)
-            p['location'] = data['location']
+
+            if data is not None:
+              p['location'] = data['location']  
+            else: 
+              p['location'] = None
+
           if project.time_gen_id is not None:
             data = get_time(project.time_gen_id,token)
-            p['time'] = data['time']
+
+            if data is not None:
+              p['time'] = data['time']  
+            else: 
+              p['time'] = None
+
           if project.layout_gen_id is not None:
             
             data = get_layout(project.layout_gen_id,token)
+
+            if data is not None:
+              p['layout'] = data['layout']  
+            else: 
+              p['layout'] = None
             
-            p['layout'] = data['layout']
           return jsonify(p),200
       else:
         
