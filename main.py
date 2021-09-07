@@ -619,6 +619,7 @@ def get_location(location_gen_id, token):
 def get_time(time_gen_id, token):
     headers = {'Authorization': token}
     api_url = f"http://{TIMES_MODULE_HOST}:{TIMES_MODULE_PORT}" + TIMES_MODULE_API + 'data/' + str(time_gen_id)
+    print(api_url)
     rv = requests.get(api_url, headers=headers)
     if rv.status_code == 200:
         return json.loads(rv.text)
@@ -662,11 +663,10 @@ def get_projects_details_by_user(project_id):
     """
     try:
       token = request.headers.get('Authorization', None)
-      user_id = 23 #request.environ['user_id']
+      user_id = request.environ['user_id']
       if user_id is None:
             abort(400)
       
-      print('user_id',user_id)
       if project_id.isdigit():
         
         project = Project.query.filter(
@@ -682,6 +682,7 @@ def get_projects_details_by_user(project_id):
               p['m2'] = None
           if project.price_gen_id is not None:
             data = get_price(project.price_gen_id,token)
+            print(data)
             if data is not None:
               print(data)
               p['price'] = data['value']  
@@ -727,6 +728,7 @@ def get_projects_details_by_user(project_id):
               p['m2'] = data['m2']
             if d['price_gen_id'] is not None:
               data = get_price(d['price_gen_id'],token)
+              print(data)
               p['price'] = data['value']
             if d['location_gen_id'] is not None:
               data = get_location(d['location_gen_id'],token)
