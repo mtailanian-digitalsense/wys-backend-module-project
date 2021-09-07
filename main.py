@@ -317,11 +317,10 @@ def get_projects():
         token = request.headers.get('Authorization', None)
      
         uid = request.environ['user_id']
-        
+    
         if uid is None:
             abort(400)
         
-        print('uid',uid)
         projects = Project.query.filter_by(user_id=uid)
         
         p=[]
@@ -664,6 +663,7 @@ def get_projects_details_by_user(project_id):
     try:
       token = request.headers.get('Authorization', None)
       user_id = request.environ['user_id']
+      print('user_id',user_id)
       if user_id is None:
             abort(400)
       
