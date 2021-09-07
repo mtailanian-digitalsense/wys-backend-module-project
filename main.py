@@ -662,11 +662,11 @@ def get_projects_details_by_user(project_id):
     """
     try:
       token = request.headers.get('Authorization', None)
-      user_id = request.environ['user_id']
-      print('user_id',user_id)
+      user_id: int = request.environ['user_id']
+      print('user_id',request.environ['user_id'])
       if user_id is None:
             abort(400)
-      
+      print('user_id',user_id)
       if project_id.isdigit():
         
         project = Project.query.filter(
