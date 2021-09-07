@@ -682,10 +682,8 @@ def get_projects_details_by_user(project_id):
               p['m2'] = None
           if project.price_gen_id is not None:
             data = get_price(project.price_gen_id,token)
-            print(data)
             if data is not None:
-              print(data)
-              p['price'] = data['value']  
+              p['price'] = data['price']  
             else: 
               p['price'] = None
             
@@ -728,8 +726,8 @@ def get_projects_details_by_user(project_id):
               p['m2'] = data['m2']
             if d['price_gen_id'] is not None:
               data = get_price(d['price_gen_id'],token)
-              print(data)
-              p['price'] = data['value']
+              
+              p['price'] = data['price']
             if d['location_gen_id'] is not None:
               data = get_location(d['location_gen_id'],token)
               p['location'] = data['location']
