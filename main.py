@@ -740,7 +740,7 @@ def get_projects_details_by_user(project_id):
               p['layout'] = data['layout']
             projects_list.append(p)
         return jsonify(projects_list),200
-      return jsonify({'status': "Project doesn't exists or doesn't belong to the user."}), 403
+      return jsonify({'status': "Project doesn't exists or doesn't belong to the user."}), 401
 
     except KeyError as kerr:
       app.logger.error(f"Can't find user_id in token {kerr}")
