@@ -152,7 +152,7 @@ def token_required(f):
         try:
             token = bearer_token.split(" ")[1]
         except Exception as ierr:
-            app.logger.error(ierr)
+            app.logger.error(str(ierr))
             abort(jsonify({'message': 'a valid bearer token is missing'}), 500)
         
         if not token:
@@ -163,14 +163,14 @@ def token_required(f):
         try:
           data = jwt.decode(token, app.config['SECRET_KEY'],
                               algorithms=['RS256'], audience="1")
-            
+          user_id: int = data['user_id']
+          request.environ['user_id'] = user_id
+
         except Exception as err:
-          print("test")
-          return jsonify({'message': 'token is invalid', 'error': str(err)}),404
+          return jsonify({'message': 'token is invalid', 'error': str(err)}),401
         except KeyError as kerr:
           return jsonify({'message': 'Can\'t find user_id in token', 'error': str(kerr)})
-        user_id: int = data['user_id']
-        request.environ['user_id'] = user_id
+        
 
         return f(*args, **kwargs)
 
