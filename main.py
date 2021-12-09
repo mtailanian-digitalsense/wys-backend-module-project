@@ -166,9 +166,9 @@ def token_required(f):
             
         except Exception as err:
           print("test")
-          return jsonify({'message': 'token is invalid', 'error': "test"})
+          return jsonify({'message': 'token is invalid', 'error': str(err)}),401
         except KeyError as kerr:
-          return jsonify({'message': 'Can\'t find user_id in token', 'error': kerr})
+          return jsonify({'message': 'Can\'t find user_id in token', 'error': str(kerr)})
         user_id: int = data['user_id']
         request.environ['user_id'] = user_id
 
