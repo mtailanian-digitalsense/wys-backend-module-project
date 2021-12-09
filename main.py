@@ -171,7 +171,7 @@ def token_required(f):
         except KeyError as kerr:
             return jsonify({'message': 'Can\'t find user_id in token', 'error': kerr})
         user_id: int = data['user_id']
-        }request.environ['user_id'] = user_id
+        request.environ['user_id'] = user_id
 
         return f(*args, **kwargs)
 
