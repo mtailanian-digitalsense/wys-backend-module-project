@@ -161,7 +161,7 @@ def token_required(f):
 
         app.logger.debug("Token: " + token)
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'],
+          data = jwt.decode(token, app.config['SECRET_KEY'],
                               algorithms=['RS256'], audience="1")
             
         except Exception as err:
