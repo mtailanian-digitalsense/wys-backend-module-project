@@ -169,6 +169,8 @@ def token_required(f):
             return jsonify({'message': 'token is invalid', 'error': err})
         except KeyError as kerr:
             return jsonify({'message': 'Can\'t find user_id in token', 'error': kerr})
+        except jwt.ExpiredSignatureError as eerr:
+          return jsonify({'message': 'The given token has expired', 'error': eerr}),401
 
         return f(*args, **kwargs)
 
