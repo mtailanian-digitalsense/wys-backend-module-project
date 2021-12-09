@@ -163,15 +163,15 @@ def token_required(f):
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'],
                               algorithms=['RS256'], audience="1")
-            user_id: int = data['user_id']
-            request.environ['user_id'] = user_id
+            
         except jwt.exceptions.ExpiredSignatureError as eerr:
           return jsonify({'message': 'The given token has expired', 'error': eerr}),401
         except Exception as err:
             return jsonify({'message': 'token is invalid', 'error': err})
         except KeyError as kerr:
             return jsonify({'message': 'Can\'t find user_id in token', 'error': kerr})
-        
+        user_id: int = data['user_id']
+        request.environ['user_id'] = user_id
 
         return f(*args, **kwargs)
 
