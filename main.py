@@ -164,8 +164,8 @@ def token_required(f):
             data = jwt.decode(token, app.config['SECRET_KEY'],
                               algorithms=['RS256'], audience="1")
             
-        except jwt.ExpiredSignature as eerr:
-          return jsonify({'message': 'The given token has expired', 'error': eerr}),401
+        except jwt.exceptions.ExpiredSignatureError as eerr:
+          abort(jsonify({'message': 'The given token has expired', 'error': eerr}),401)
         except Exception as err:
             return jsonify({'message': 'token is invalid', 'error': err})
         except KeyError as kerr:
