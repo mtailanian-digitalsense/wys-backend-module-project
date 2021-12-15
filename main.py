@@ -162,7 +162,7 @@ def token_required(f):
         app.logger.debug("Token: " + token)
         try:
           data = jwt.decode(token, app.config['SECRET_KEY'],
-                              algorithms=['RS256'], audience="1")
+                              algorithms=['RS256'])
           user_id: int = data['user_id']
           request.environ['user_id'] = user_id
 
