@@ -18,10 +18,14 @@ from flask_cors import CORS
 from functools import wraps
 
 # Loading Config Parameters
-DB_USER = os.getenv('DB_USER', 'wys')
-DB_PASS = os.getenv('DB_PASSWORD', 'rac3e/07')
-DB_IP = os.getenv('DB_IP_ADDRESS', '10.2.14.195')
-DB_PORT = os.getenv('DB_PORT', '3307')
+DB_USER = os.getenv('DB_USER', 'root')#'wys')
+"""Config Parameters"""
+DB_PASS = os.getenv('DB_PASSWORD','root' )#'rac3e/07')
+"""Config Parameters"""
+DB_IP = os.getenv('DB_IP_ADDRESS', 'localhost')#'10.2.14.195')
+"""Config Parameters"""
+DB_PORT = os.getenv('DB_PORT', '3306')#'3307')
+"""Config Parameters"""
 DB_SCHEMA = os.getenv('DB_SCHEMA', 'wys')
 
 BUILDINGS_MODULE_HOST = os.getenv('BUILDINGS_MODULE_HOST', '127.0.0.1')
@@ -349,6 +353,56 @@ def get_projects():
         app.logger.error(f"Error in database: mesg ->{exp}")
         return exp, 500
 
+
+@app.route('/api/projects/m2byfloor/<project_id>', methods=['GET'])
+@token_required
+def get_m2_by_floor(project_id):
+    """
+        Get M2 by floor and Project
+        ---
+        consumes:
+        - "application/json"
+          
+        tags:
+        - "projects"
+        
+        parameters:
+        - in: path
+          name: project_id
+          type: integer
+          description: Project ID
+
+        produces:
+        - "application/xml"
+        - "application/json"
+       
+        responses:
+          200:
+            description: "Success"
+          400:
+            description: "User without id"
+          500:
+            description: "Database error"
+    """
+
+    try:
+        token = request.headers.get('Authorization', None)
+      
+        project = Project.query.filter_by(id=project_id).first()
+        if project is not None:
+          
+          if request.method == 'GET':
+            data = get_layout_gen(project.id,token)
+            m2=get_floor_m2(data['floor_id'],token)
+            return m2, 200
+      
+        return '{}', 404
+
+    except Exception as exp:
+        app.logger.error(f"Error in database: mesg ->{exp}")
+        return exp, 500
+
+
 @app.route('/api/projects/allusers', methods=['GET'])
 @token_required
 def get_projects_all_users():
@@ -609,7 +663,16 @@ def get_price(pgid, token):
 def get_location(location_gen_id, token):
     headers = {'Authorization': token}
     api_url = f"http://{BUILDINGS_MODULE_HOST}:{BUILDINGS_MODULE_PORT}" + BUILDINGS_MODULE_API + 'data/' + str(location_gen_id)
-    print(api_url)
+    rv = requests.get(api_url, headers=headers)
+    if rv.status_code == 200:
+        return json.loads(rv.text)
+    elif rv.status_code == 500:
+      raise Exception("Cannot connect to the buildings module")
+    return None
+
+def get_floor_m2(floor_id, token):
+    headers = {'Authorization': token}
+    api_url = f"http://{BUILDINGS_MODULE_HOST}:{BUILDINGS_MODULE_PORT}" + BUILDINGS_MODULE_API + 'floors/' + str(floor_id)
     rv = requests.get(api_url, headers=headers)
     if rv.status_code == 200:
         return json.loads(rv.text)
